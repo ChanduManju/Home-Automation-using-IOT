@@ -1,0 +1,109 @@
+#include <LiquidCrystal.h>
+const int rs = 13, en = 12, d4 = 11, d5 = 10, d6 = 9, d7 = 8;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+
+#include <OneWire.h>
+#include <DallasTemperature.h>
+
+#define ONE_WIRE_BUS 7 
+
+
+
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature sensors(&oneWire);
+float temperature;
+
+
+char ch,ch1;
+
+
+int Relay1=5;
+int Relay2=6;
+int LDR=4;
+
+void setup()
+{
+  
+
+  pinMode(LDR,INPUT);
+
+
+    pinMode(Relay1, OUTPUT);
+  pinMode(Relay2, OUTPUT);
+ 
+  
+
+  digitalWrite(Relay1,LOW);
+  digitalWrite(Relay2,LOW);
+  
+
+  Serial.begin(9600);
+  lcd.begin(16,2);                      // Initialize the LCD
+
+  lcd.clear();
+                
+  lcd.setCursor(0,0);
+  lcd.print("   Smart Home ");
+  lcd.setCursor(0,1);
+  lcd.print("   Automation ");
+
+  delay(2000);
+ 
+
+}
+void loop()
+{
+  SENSOR_CHECK();  
+}
+
+   
+
+
+void SENSOR_CHECK()
+{
+  while(1)
+  {
+    
+  Temp_check();
+    LDR_Check();
+ 
+    
+  }
+}
+void Temp_check()
+{
+     sensors.requestTemperatures(); 
+      temperature = sensors.getTempCByIndex(0);
+//      Serial.print("Temperature: ");
+//      Serial.println(temperature);
+      lcd.clear();
+      lcd.print("Temp: ");
+      lcd.print(temperature);
+      delay(1000);
+      if(temperature>34)
+      {
+       // Serial.println("$More Temperature#");
+        lcd.clear();
+        lcd.print("More Temperature");
+        digitalWrite(Relay2,HIGH);
+        delay(1000);
+      }
+      if(temperature<33)
+      {
+        digitalWrite(Relay2,LOW);
+        delay(1000);
+      }
+}
+
+
+char Serial_read(void)
+{
+      char ch;
+      while(Serial.available() == 0);
+      ch = Serial.read();
+      return ch;
+}
